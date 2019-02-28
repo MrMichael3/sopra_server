@@ -31,6 +31,9 @@ public class User implements Serializable {
 	@Column(nullable = false)
 	private UserStatus status;
 
+	@Column(nullable = false, unique = false)
+	private String password;
+
 	public Long getId() {
 		return id;
 	}
@@ -54,6 +57,10 @@ public class User implements Serializable {
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
+	public void setPassword(String password) {this.password = password;}
+
+	public String getPassword() {return password;}
 
 	public String getToken() {
 		return token;
