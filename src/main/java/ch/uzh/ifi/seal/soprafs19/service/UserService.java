@@ -31,9 +31,26 @@ public class UserService {
 
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
-        newUser.setStatus(UserStatus.ONLINE);
+        newUser.setStatus(UserStatus.OFFLINE);
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
+    }
+    //verify user
+    public User verifyUser(User unverifiedUser){
+        String pw = unverifiedUser.getPassword();
+        String un = unverifiedUser.getUsername();
+        String expectedPw = userRepository.findByUsername(un).getPassword();
+
+        if(pw == expectedPw){
+            //validation succeeded
+            unverifiedUser.setStatus(UserStatus.ONLINE);
+            log.debug("Logged in User: {}", unverifiedUser);
+        }
+        else{
+            //validation failed
+            log.debug("Login failed");
+        }
+        return unverifiedUser;
     }
 }
