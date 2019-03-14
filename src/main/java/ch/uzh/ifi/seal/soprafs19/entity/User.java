@@ -19,8 +19,8 @@ public class User implements Serializable {
 	@GeneratedValue
 	private Long id;
 	
-	@Column(nullable = false) 
-	private String name;
+	@Column()
+	private String birthday;
 	
 	@Column(nullable = false, unique = true) 
 	private String username;
@@ -33,6 +33,9 @@ public class User implements Serializable {
 
 	@Column(nullable = false, unique = false)
 	private String password;
+
+	@Column()
+	private String creationDate;
 
 	public Long getId() {
 		return id;

@@ -1,7 +1,10 @@
 package ch.uzh.ifi.seal.soprafs19.service;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import ch.uzh.ifi.seal.soprafs19.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs19.entity.User;
+import ch.uzh.ifi.seal.soprafs19.entity.UserLogin;
+import ch.uzh.ifi.seal.soprafs19.entity.UserToken;
 import ch.uzh.ifi.seal.soprafs19.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,20 +40,32 @@ public class UserService {
         return newUser;
     }
     //verify user
-    public User verifyUser(User unverifiedUser){
+    public UserToken verifyUser(UserLogin unverifiedUser){
         String pw = unverifiedUser.getPassword();
         String un = unverifiedUser.getUsername();
-        String expectedPw = userRepository.findByUsername(un).getPassword();
+        UserToken token = new UserToken();
+        try {
+            User toVerifyUser = userRepository.findByUsername(un);
+            String expectedPw = toVerifyUser.getPassword();
+            System.out.println("FFFFFFFFFFFFFFFFFFF" + un);
 
-        if(pw == expectedPw){
-            //validation succeeded
-            unverifiedUser.setStatus(UserStatus.ONLINE);
-            log.debug("Logged in User: {}", unverifiedUser);
+            if (pw.equals(expectedPw)) {
+                //validation succeeded
+                toVerifyUser.setStatus(UserStatus.ONLINE);
+                userRepository.save(toVerifyUser);
+                log.debug("Logged in User: {}", toVerifyUser);
+                token.setToken(toVerifyUser.getToken());
+            } else {
+                //validation failed
+                log.debug("Login failed");
+                token.setToken("");
+            }
+        }catch (Exception e){
+            token.setToken("");
         }
-        else{
-            //validation failed
-            log.debug("Login failed");
-        }
-        return unverifiedUser;
+        return token;
+    }
+    public User getUser(long userId) {
+        return userRepository.findById(userId);
     }
 }
