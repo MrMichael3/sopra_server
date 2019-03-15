@@ -22,22 +22,25 @@ public class UserController {
     Iterable<User> all() {
         return service.getUsers();
     }
+
     @GetMapping("/users/{userId}")
     User getUser(@PathVariable long userId){
         return this.service.getUser(userId);
     }
-
 
     @PostMapping("/users")
     User createUser(@RequestBody User newUser) {
         return this.service.createUser(newUser);
     }
 
-    //new put-function, should check username + pw and return true if correct
+    //checks if password and username are correct
     @CrossOrigin(origins = "http://localhost:3000")
     @PutMapping("/users/validation")
     UserToken verifyUser(@RequestBody UserLogin unverifiedUser){return this.service.verifyUser(unverifiedUser);}
 
+    @CrossOrigin(origins = "http://localhost:3000")
+    @PutMapping("/users/{userId}")
+    void updateUser(@RequestBody User updatedUser,@PathVariable long userId){this.service.updateUser(updatedUser, userId);}
 }
 
 

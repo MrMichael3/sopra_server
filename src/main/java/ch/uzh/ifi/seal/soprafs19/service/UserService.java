@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -50,8 +51,6 @@ public class UserService {
         try {
             User toVerifyUser = userRepository.findByUsername(un);
             String expectedPw = toVerifyUser.getPassword();
-            System.out.println("FFFFFFFFFFFFFFFFFFF" + un);
-
             if (pw.equals(expectedPw)) {
                 //validation succeeded
                 toVerifyUser.setStatus(UserStatus.ONLINE);
@@ -71,4 +70,27 @@ public class UserService {
     public User getUser(long userId) {
         return userRepository.findById(userId);
     }
+
+    public void updateUser(User updatedUser, long userId){
+        System.out.println(updatedUser.getToken());
+        User x = userRepository.findByToken(updatedUser.getToken());
+        if(updatedUser.getToken().equals(userRepository.findById(userId).getToken())) {
+            if (updatedUser.getUsername() != null) {
+                if (this.userRepository.findByUsername(updatedUser.getUsername()) != null) {
+                    //User already exists
+                    throw new InvalidParameterException();
+                }
+                System.out.println("update username!");
+                x.setUsername(updatedUser.getUsername());
+            }
+            else{
+                System.out.println("don't update username");
+            }
+            if (updatedUser.getBirthday() != null) {
+                System.out.println("update birthday!");
+                x.setBirthday(updatedUser.getBirthday());
+            }
+        }
+    }
 }
+
