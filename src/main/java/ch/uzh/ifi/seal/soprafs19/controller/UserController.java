@@ -24,11 +24,12 @@ public class UserController {
     }
 
     @GetMapping("/users/{userId}")
-    User getUser(@PathVariable long userId){
+    User getUser(@PathVariable long userId) {
         return this.service.getUser(userId);
     }
 
     @PostMapping("/users")
+    @ResponseStatus(HttpStatus.CREATED)
     User createUser(@RequestBody User newUser) {
         return this.service.createUser(newUser);
     }
@@ -36,11 +37,15 @@ public class UserController {
     //checks if password and username are correct
     @CrossOrigin(origins = "http://localhost:3000")
     @PutMapping("/users/validation")
-    UserToken verifyUser(@RequestBody UserLogin unverifiedUser){return this.service.verifyUser(unverifiedUser);}
+    UserToken verifyUser(@RequestBody UserLogin unverifiedUser) {
+        return this.service.verifyUser(unverifiedUser);
+    }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @PutMapping("/users/{userId}")
-    void updateUser(@RequestBody User updatedUser,@PathVariable long userId){this.service.updateUser(updatedUser, userId);}
+    void updateUser(@RequestBody User updatedUser, @PathVariable long userId) {
+        this.service.updateUser(updatedUser, userId);
+    }
 }
 
 

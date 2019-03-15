@@ -1,6 +1,5 @@
 package ch.uzh.ifi.seal.soprafs19.service;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import ch.uzh.ifi.seal.soprafs19.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs19.entity.User;
 import ch.uzh.ifi.seal.soprafs19.entity.UserLogin;
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
@@ -36,15 +34,20 @@ public class UserService {
     }
 
     public User createUser(User newUser) {
+        //throw exception if user already exists
+        if(this.userRepository.findByUsername(newUser.getUsername())!=null){
+            throw new InvalidParameterException();
+        }
         newUser.setToken(UUID.randomUUID().toString());
-        newUser.setStatus(UserStatus.OFFLINE);
+        newUser.setUserStatus(UserStatus.OFFLINE);
         newUser.setCreationDate(LocalDate.now());
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }
+
     //verify user
-    public UserToken verifyUser(UserLogin unverifiedUser){
+    public UserToken verifyUser(UserLogin unverifiedUser) {
         String pw = unverifiedUser.getPassword();
         String un = unverifiedUser.getUsername();
         UserToken token = new UserToken();
@@ -53,7 +56,7 @@ public class UserService {
             String expectedPw = toVerifyUser.getPassword();
             if (pw.equals(expectedPw)) {
                 //validation succeeded
-                toVerifyUser.setStatus(UserStatus.ONLINE);
+                toVerifyUser.setUserStatus(UserStatus.ONLINE);
                 userRepository.save(toVerifyUser);
                 log.debug("Logged in User: {}", toVerifyUser);
                 token.setToken(toVerifyUser.getToken());
@@ -62,19 +65,20 @@ public class UserService {
                 log.debug("Login failed");
                 token.setToken("");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             token.setToken("");
         }
         return token;
     }
+
     public User getUser(long userId) {
         return userRepository.findById(userId);
     }
 
-    public void updateUser(User updatedUser, long userId){
+    public void updateUser(User updatedUser, long userId) {
         System.out.println(updatedUser.getToken());
         User x = userRepository.findByToken(updatedUser.getToken());
-        if(updatedUser.getToken().equals(userRepository.findById(userId).getToken())) {
+        if (updatedUser.getToken().equals(userRepository.findById(userId).getToken())) {
             if (updatedUser.getUsername() != null) {
                 if (this.userRepository.findByUsername(updatedUser.getUsername()) != null) {
                     //User already exists
@@ -82,13 +86,14 @@ public class UserService {
                 }
                 System.out.println("update username!");
                 x.setUsername(updatedUser.getUsername());
-            }
-            else{
+            } else {
                 System.out.println("don't update username");
             }
             if (updatedUser.getBirthday() != null) {
                 System.out.println("update birthday!");
                 x.setBirthday(updatedUser.getBirthday());
+            } else {
+                System.out.println("don't update birthday");
             }
         }
     }
